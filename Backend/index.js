@@ -29,7 +29,7 @@ dotenv.config();
 app.use(express.json());
 app.use('/images',express.static(path.join(__dirname,'images'))); // to access images
 const corsOption = {
-    origin: ['http://localhost:5173'],
+    origin: ['https://blogsphere.suvankar7.tech/'],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
 }
