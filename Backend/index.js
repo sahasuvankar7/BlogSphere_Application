@@ -1,7 +1,7 @@
 const express = require("express");
 const { default: mongoose } = require("mongoose");
 const app = express();
-const dotenv = require("dotenv");
+const dotenv = require("dotenv/config");
 const authRoute = require("./routes/auth");
 const userRoute = require("./routes/users");
 const postRoute = require("./routes/posts");
@@ -11,11 +11,12 @@ const cors = require("cors");
 const multer = require('multer');
 const path = require('path');
 
+const { PORT, MONGO_URL, CLIENT_URL } = process.env;
 
 // database
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URL);
+    await mongoose.connect(MONGO_URL);
 
     console.log("MongoDB connected");
   } catch (err) {
@@ -25,15 +26,17 @@ const connectDB = async () => {
 };
 
 // middlewares
-dotenv.config();
+
 app.use(express.json());
 app.use('/images',express.static(path.join(__dirname,'images'))); // to access images
-const corsOption = {
-    origin: ['https://blogsphere.suvankar7.tech/'],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-}
-app.use(cors(corsOption));
+app.use(
+  cors({
+    origin: CLIENT_URL, // specify the origin for CORS
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // specify the methods for CORS
+    credentials: true, // this allows session cookies to be sent with requests
+    optionsSuccessStatus: 200, // some legacy browsers choke on 204
+  })
+);
 app.use(cookieParser());
 
 app.use("/api/auth", authRoute);
@@ -81,9 +84,9 @@ app.post("/api/upload",upload.single("file"),(req,res)=>{
 
 
 
-app.listen(process.env.PORT, () => {
+app.listen(PORT, () => {
   connectDB();
   console.log(
-    `Server is running on port ${process.env.PORT} get ready to code!`
+    `Server is running on port ${PORT} get ready to code!`
   );
 });
